@@ -1,6 +1,6 @@
 function SPM12_Preprocessing_Prisma
     % Example of Preprocessing implementation for SPM12
-    % Author: Valérie Chanoine, Research Engineer at Brain and Language
+    % Author: ValÃ©rie Chanoine, Research Engineer at Brain and Language
     % Institute (http://www.blri.fr/)
     % Co-authors from BLRI: Samuel Planton and Chotiga Pattadimalok
     % Co-authors from fMRI platform:  Julien Sein, Jean-Luc Anton, Bruno Nazarian and Pascal Belin from fMRI
@@ -28,7 +28,7 @@ function SPM12_Preprocessing_Prisma
             '012_Fieldmap',... % 02CE          
             };  
     
-    w.dummy 			=  0;   % number of dummy files  
+    w.dummy 		=  0;   % number of dummy files  
     w.nSlices           = 54;     % Number of slices
     w.TR                = 1.224;  % Repetition time (s)
     w.sep               = 2.5;    % Slice thickness (mm): 2.5
@@ -38,7 +38,7 @@ function SPM12_Preprocessing_Prisma
     w.READOUT_TIME      =  42;  % from EPI info file  
     
     % Define specific parameters
-    w.funcDir           =  'Functional';                                  	% functional directory (parent=subject)
+    w.funcDir           =  'Functional';                                    % functional directory (parent=subject)
     w.structDir         =  'Structural';                                    % structural directory (parent=subject)
     w.sessions          = {'func01', 'func02', 'func03', 'func04'};         % session directory (parent=functional)
     w.AudioLabview      = {'COMPR1', 'PERCE1', 'COMPR2', 'PERCE2'};
