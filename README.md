@@ -11,4 +11,5 @@ Pipelines for fMRI data preprocessing on SPM12. Example with data acquired on a 
 
 
  * CREx_fMRI_QA_tsdiffana
+
  Time series diagnostics adapted from Matthew Brett website (see http://imaging.mrc-cbu.cam.ac.uk/imaging/DataDiagnostics)
