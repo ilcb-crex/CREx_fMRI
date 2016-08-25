@@ -1,6 +1,6 @@
-function SPM12_Preprocessing_Prisma
+function CREx_fMRI_Preprocessing_Prisma
     % Example of Preprocessing implementation for SPM12
-    % Author: Valérie Chanoine, Research Engineer at Brain and Language
+    % Author: ValÃ©rie Chanoine, Research Engineer at Brain and Language
     % Institute (http://www.blri.fr/)
     % Co-authors from BLRI: Samuel Planton and Chotiga Pattadimalok
     % Co-authors from fMRI platform:  Julien Sein, Jean-Luc Anton, Bruno Nazarian and Pascal Belin from fMRI
