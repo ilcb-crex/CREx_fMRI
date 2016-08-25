@@ -1,5 +1,5 @@
-function CREx_tsdiffana
-    % Author: Valérie Chanoine, Research Engineer at Brain and Language
+function CREx_fMRI_QA_tsdiffana
+    % Author: ValÃ©rie Chanoine, Research Engineer at Brain and Language
     % Institute (http://www.blri.fr/)
     % From Matthew Brett website - 'Time series diagnostics' script (see
     % http://imaging.mrc-cbu.cam.ac.uk/imaging/DataDiagnostics)
