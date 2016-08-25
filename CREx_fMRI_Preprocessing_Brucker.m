@@ -1,6 +1,6 @@
-function SPM12_Preprocessing
-    % Example of Preprocessing implementation for SPM
-    % Author: Valérie Chanoine, Research Engineer at Brain and Language
+function CREx_fMRI_Preprocessing_Brucker.m
+    % Example of Preprocessing implementation for SPM12
+    % Author: ValÃ©rie Chanoine, Research Engineer at Brain and Language
     % Institute (http://www.blri.fr/)
     % Co-authors: Jean-Luc Anton, Bruno Nazarian and Pascal Belin from fMRI
     % platform (fMRI Center, Timone Hospital, Marseille, France)
@@ -150,7 +150,7 @@ function DoRealignUnwarp(w)
     matlabbatch{1}.spm.spatial.realignunwarp.uweoptions.noi = 5;
     matlabbatch{1}.spm.spatial.realignunwarp.uweoptions.expround = 'Average';
     matlabbatch{1}.spm.spatial.realignunwarp.uwroptions.uwwhich = [2 1];
-    matlabbatch{1}.spm.spatial.realignunwarp.uwroptions.rinterp = 1;    %  modifié
+    matlabbatch{1}.spm.spatial.realignunwarp.uwroptions.rinterp = 1;    %  modifiÃ©
     matlabbatch{1}.spm.spatial.realignunwarp.uwroptions.wrap = [0 0 0];
     matlabbatch{1}.spm.spatial.realignunwarp.uwroptions.mask = 1;
     matlabbatch{1}.spm.spatial.realignunwarp.uwroptions.prefix = 'u';
