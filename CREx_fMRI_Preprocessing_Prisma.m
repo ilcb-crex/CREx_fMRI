@@ -29,10 +29,7 @@ function CREx_fMRI_Preprocessing_Prisma
     w.READOUT_TIME      =  42; % from EPI info file  
     
  
-    if strcmp(w.subName, 'pilote2')
-        w.anat_ref       = 't1_mprage'; 
-        w.READOUT_TIME      =  21; % from EPI info file  
-    end
+
       
     %%===================================================================== 
     % Loop on subjects
@@ -107,7 +104,12 @@ function CREx_fMRI_Preprocessing_Prisma
         w.fieldmapPath     = fullfile (w.structPath, w.fieldMapDir);
         w.T1Path           = fullfile (w.structPath, w.T1Dir);
         
-       
+    
+	if strcmp(w.subName, 'pilote2')
+		w.anat_ref       = 't1_mprage'; 
+		w.READOUT_TIME      =  21; % from EPI info file  
+	end   
+    
 
         % Get parameters from slice onset matrix
         slice_times     = load('slice_onsets_Intermod2_VI_1225ms.mat');
