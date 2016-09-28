@@ -1,5 +1,13 @@
 function CREx_fMRI_Preprocessing_Prisma
-
+    % Example of Preprocessing implementation for SPM
+    % Author: Valérie Chanoine, Research Engineer at Brain and Language
+    % Institute (http://www.blri.fr/)
+    % Co-authors from BLRI: Samuel Planton and Chotiga Pattadimalok
+    % Co-authors from fMRI platform:   Julien Sein, Jean-Luc Anton, Bruno Nazarian and Pascal Belin from fMRI
+    % platform (fMRI Center, Timone Hospital, Marseille, France)
+    % Date: June 29, 2016
+    
+    
     % Initialise SPM
     spm('defaults','fmri');  
     spm_jobman('initcfg');
@@ -8,13 +16,14 @@ function CREx_fMRI_Preprocessing_Prisma
     w.dataDir           = 'F:\IRM\Intermod2\Data\PREPROC';      % root directory 
     w.subjects          = {'01LA', '02CE', '03NC', '04AC', '05GV', '06EC', '07MR', '08NB', '09BK',...
         '10TL', '11CL', '12SP', '13CC', '14EP','16SM','17NR','18EF', '19AK', '20ET', '21LP', '22SR', '23LG', '24IA', 'pilote2'};  % subject directory (parent=dataDir)
-           
+    
+   
     w.funcDir           =  'Functional';                                            % functional directory (parent=subject)
     w.structDir         =  'Structural';                                            % structural directory (parent=subject)
     w.sessions          = {'func01', 'func02', 'func03', 'func04', 'func05'};   	% session directory (parent=functional)
     w.T1Dir             =  'anat01';                        % T1 directory (parent=structural)
     w.fieldMapDir       =  'fieldmap01';                    % fieldmap directory  (parent=structural)
-    w.dummy 		=  0;								% number of dummy files
+    w.dummy 			=  0;								% number of dummy files
     w.anat_ref          = 'T1_MPRAGE';
  
    
@@ -28,13 +37,10 @@ function CREx_fMRI_Preprocessing_Prisma
     w.LONG_ECHO_TIME    = 7.38;   
     w.READOUT_TIME      =  42; % from EPI info file  
     
- 
-
-      
     %%===================================================================== 
     % Loop on subjects
     for iS=1:numel(w.subjects)
-        
+         
         % Session order for the first level analysis
         w.sessions_First = {};
         switch (w.subjects{iS})
@@ -104,13 +110,12 @@ function CREx_fMRI_Preprocessing_Prisma
         w.fieldmapPath     = fullfile (w.structPath, w.fieldMapDir);
         w.T1Path           = fullfile (w.structPath, w.T1Dir);
         
-    
-	if strcmp(w.subName, 'pilote2')
-		w.anat_ref       = 't1_mprage'; 
-		w.READOUT_TIME      =  21; % from EPI info file  
-	end   
-    
-
+  
+        if strcmp(w.subName, 'pilote2')
+            w.anat_ref       = 't1_mprage'; 
+            w.READOUT_TIME 	 =  21; % from EPI info file  
+        end      
+         
         % Get parameters from slice onset matrix
         slice_times     = load('slice_onsets_Intermod2_VI_1225ms.mat');
  
@@ -122,14 +127,14 @@ function CREx_fMRI_Preprocessing_Prisma
 
         %%===== Do Preprocessing step by step
         
-        DoFieldMap(w, iS); 
-        DoSliceTiming(w);
-        DoRealignUnwarp(w);
-        DoCoregister(w);
-        DoSegment(w);
-        PrepareExplicitMask(w)
-        DoNormalise(w);
-        DoSmooth(w)
+         DoFieldMap(w, iS); 
+         DoSliceTiming(w);
+         DoRealignUnwarp(w);
+         DoCoregister(w);
+         DoSegment(w);
+         DoNormalise(w);
+         DoSmooth(w)
+         DoExplicitMask(w)
    
         %%=====
     end    
@@ -234,9 +239,9 @@ function DoSliceTiming(w)
 end
 
 function DoRealignUnwarp(w)
-    clear matlabbatch
+	clear matlabbatch
   
-    EPI = {};
+	EPI = {};
     % Loop for sessions
     for j=1:numel(w.sessions)
         expReg = ['^vdm5.*' num2str(j) '\.nii$'];
@@ -252,9 +257,9 @@ function DoRealignUnwarp(w)
         matlabbatch{1}.spm.spatial.realignunwarp.data(j).pmscan    = vdm;
             
     end             
-    
+
     matlabbatch{1}.spm.spatial.realignunwarp.eoptions.quality = 0.9;
-    matlabbatch{1}.spm.spatial.realignunwarp.eoptions.thickness = 4;
+    matlabbatch{1}.spm.spatial.realignunwarp.eoptions.sep = 4;
     matlabbatch{1}.spm.spatial.realignunwarp.eoptions.fwhm = 5; 
     matlabbatch{1}.spm.spatial.realignunwarp.eoptions.rtm = 0;
     matlabbatch{1}.spm.spatial.realignunwarp.eoptions.einterp = 2; % 2edegree Bspline (default value)
@@ -362,32 +367,6 @@ function DoSegment(w)
     save(fullfile(w.subPath, 'SPM12_matlabbatch_5_Segment.mat'),'matlabbatch');     
 end
 
-function PrepareExplicitMask(w)
-
-    %% Get normalized tissus (grey and white matter, CSF
-  
-    c1 = spm_select('ExtFPList', w.T1Path, ['^c1.*'  '.*\.nii$'],1:1); 
-    c2 = spm_select('ExtFPList', w.T1Path, ['^c2.*'  '.*\.nii$'],1:1); 
-    c3 = spm_select('ExtFPList', w.T1Path, ['^c3.*'  '.*\.nii$'],1:1); 
-
-    P = [c1; c2; c3];  
-    
-    matlabbatch{1}.spm.util.imcalc.input = cellstr(P);
-    matlabbatch{1}.spm.util.imcalc.output = fullfile(w.T1Path, 'explicitMask_c1c2c3.nii');
-    matlabbatch{1}.spm.util.imcalc.outdir = {''};
-    matlabbatch{1}.spm.util.imcalc.expression = '(i1 + i2 +i3)>0';
-    matlabbatch{1}.spm.util.imcalc.options.dmtx = 0;
-    matlabbatch{1}.spm.util.imcalc.options.mask = 0;
-    matlabbatch{1}.spm.util.imcalc.options.interp = 1;
-    matlabbatch{1}.spm.util.imcalc.options.dtype = 4;   
-       
-    save(fullfile(w.subPath, 'SPM12_matlabbatch_6_Mask.mat'),'matlabbatch'); 
-
-    spm_jobman('initcfg');
-    spm_jobman('run',matlabbatch);  
-    
-end
-
 function DoNormalise(w)
         
 	% Get Field Deformation image
@@ -395,7 +374,7 @@ function DoNormalise(w)
     
             
     % Get coregistered structural image  
-    coregAnat = spm_select('FPList', w.T1Path, ['^' w.subName  '.*' w.anat_ref '.*\.nii$']);        
+    coregAnat = spm_select('FPList', w.T1Path, ['^' w.subName  '.*' w.anat_ref '.*\.nii$']);  
     
     % Get Sliced EPI images of all runs
     EPI = {};
@@ -409,9 +388,11 @@ function DoNormalise(w)
         EPI = vertcat(EPI, f);      
     end
     
-    % Get explicit mask (c1 + c2 +c3)
-    explicitMask = spm_select('FPList', w.T1Path, 'explicitMask_c1c2c3.nii');     
-    
+    % Get c1  c2  and c3 
+    c1 = spm_select('FPList', w.T1Path, ['^c1' w.subName  '.*\.nii$']); 
+    c2 = spm_select('FPList', w.T1Path, ['^c2' w.subName   '.*\.nii$']); 
+    c3 = spm_select('FPList', w.T1Path, ['^c3' w.subName   '.*\.nii$']); 
+            
     clear matlabbatch;         
     matlabbatch{1}.spm.spatial.normalise.write.subj.def = {forwardDeformation};
     matlabbatch{1}.spm.spatial.normalise.write.subj.resample = {coregAnat};
@@ -426,12 +407,24 @@ function DoNormalise(w)
     matlabbatch{2}.spm.spatial.normalise.write.woptions.interp = 4;
     
     matlabbatch{3}.spm.spatial.normalise.write.subj.def(1) = {forwardDeformation};
-    matlabbatch{3}.spm.spatial.normalise.write.subj.resample = cellstr(explicitMask);    
+    matlabbatch{3}.spm.spatial.normalise.write.subj.resample = cellstr(c1);    
     matlabbatch{3}.spm.spatial.normalise.write.woptions.bb = NaN(2,3);
     matlabbatch{3}.spm.spatial.normalise.write.woptions.vox = [w.thickness w.thickness w.thickness];
-    matlabbatch{3}.spm.spatial.normalise.write.woptions.interp = 4;      
+    matlabbatch{3}.spm.spatial.normalise.write.woptions.interp = 4;   
+    
+    matlabbatch{4}.spm.spatial.normalise.write.subj.def(1) = {forwardDeformation};
+    matlabbatch{4}.spm.spatial.normalise.write.subj.resample = cellstr(c2);    
+    matlabbatch{4}.spm.spatial.normalise.write.woptions.bb = NaN(2,3);
+    matlabbatch{4}.spm.spatial.normalise.write.woptions.vox = [w.thickness w.thickness w.thickness];
+    matlabbatch{4}.spm.spatial.normalise.write.woptions.interp = 4;     
+    
+    matlabbatch{5}.spm.spatial.normalise.write.subj.def(1) = {forwardDeformation};
+    matlabbatch{5}.spm.spatial.normalise.write.subj.resample = cellstr(c3);    
+    matlabbatch{5}.spm.spatial.normalise.write.woptions.bb = NaN(2,3);
+    matlabbatch{5}.spm.spatial.normalise.write.woptions.vox = [w.thickness w.thickness w.thickness];
+    matlabbatch{5}.spm.spatial.normalise.write.woptions.interp = 4;        
 
-    save(fullfile(w.subPath, 'SPM12_matlabbatch_7_Normalize.mat'),'matlabbatch');   
+    save(fullfile(w.subPath, 'SPM12_matlabbatch_6_Normalize.mat'),'matlabbatch');   
     
     spm_jobman('initcfg');
     spm_jobman('run',matlabbatch);  
@@ -458,8 +451,35 @@ function DoSmooth(w)
     matlabbatch{1}.spm.spatial.smooth.im = 0;
     matlabbatch{1}.spm.spatial.smooth.prefix = 's';
     
-    save(fullfile(w.subPath, 'SPM12_matlabbatch_8_Smooth.mat'),'matlabbatch'); 
+    save(fullfile(w.subPath, 'SPM12_matlabbatch_7_Smooth.mat'),'matlabbatch'); 
         
     spm_jobman('initcfg');
     spm_jobman('run',matlabbatch);     
 end
+
+function DoExplicitMask(w)
+
+    %% Get normalized tissus (grey and white matter, CSF
+  
+    wc1 = spm_select('FPList', w.T1Path, ['^wc1' w.subName  '.*\.nii$']); 
+    wc2 = spm_select('FPList', w.T1Path, ['^wc2' w.subName   '.*\.nii$']); 
+    wc3 = spm_select('FPList', w.T1Path, ['^wc3' w.subName   '.*\.nii$']); 
+
+    P = [wc1; wc2; wc3];  
+    
+    matlabbatch{1}.spm.util.imcalc.input = cellstr(P);
+    matlabbatch{1}.spm.util.imcalc.output = fullfile(w.T1Path, 'explicitMask_wc1wc2wc3.nii');
+    matlabbatch{1}.spm.util.imcalc.outdir = {''};
+    matlabbatch{1}.spm.util.imcalc.expression = '(i1 + i2 +i3)>0';
+    matlabbatch{1}.spm.util.imcalc.options.dmtx = 0;
+    matlabbatch{1}.spm.util.imcalc.options.mask = 0;
+    matlabbatch{1}.spm.util.imcalc.options.interp = 1;
+    matlabbatch{1}.spm.util.imcalc.options.dtype = 4;   
+       
+    save(fullfile(w.subPath, 'SPM12_matlabbatch_8_Mask.mat'),'matlabbatch'); 
+
+    spm_jobman('initcfg');
+    spm_jobman('run',matlabbatch);  
+    
+end
+
