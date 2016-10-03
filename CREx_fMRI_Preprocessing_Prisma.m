@@ -7,39 +7,44 @@ function CREx_fMRI_Preprocessing_Prisma
     % platform (fMRI Center, Timone Hospital, Marseille, France)
     % Date: June 29, 2016
     
+     
     
     % Initialise SPM
     spm('defaults','fmri');  
     spm_jobman('initcfg');
     
-    %%====================== Define a general struture 'w' =================
+    %%========= Define parametres in a general struture 'w' ===============
     w.dataDir           = 'F:\IRM\Intermod2\Data\PREPROC';      % root directory 
-    w.subjects          = {'01LA', '02CE', '03NC', '04AC', '05GV', '06EC', '07MR', '08NB', '09BK',...
-        '10TL', '11CL', '12SP', '13CC', '14EP','16SM','17NR','18EF', '19AK', '20ET', '21LP', '22SR', '23LG', '24IA', 'pilote2'};  % subject directory (parent=dataDir)
-    
-   
+    w.subjects          = {'01LA', '02CE', '03NC', '04AC', '05GV', '06EC', '07MR', '08NB', '09BK','10TL', '11CL', '12SP', '13CC',...
+                        '14EP','16SM','17NR','18EF', '19AK', '20ET', '21LP', '22SR', '23LG', '24IA', 'pilote2'};  % subject directory (parent=dataDir)
+           
     w.funcDir           =  'Functional';                                            % functional directory (parent=subject)
     w.structDir         =  'Structural';                                            % structural directory (parent=subject)
     w.sessions          = {'func01', 'func02', 'func03', 'func04', 'func05'};   	% session directory (parent=functional)
-    w.T1Dir             =  'anat01';                        % T1 directory (parent=structural)
-    w.fieldMapDir       =  'fieldmap01';                    % fieldmap directory  (parent=structural)
-    w.dummy 			=  0;								% number of dummy files
-    w.anat_ref          = 'T1_MPRAGE';
- 
+    w.T1Dir             =  'anat01';                                                % T1 directory (parent=structural)
+    w.fieldMapDir       =  'fieldmap01';                                            % fieldmap directory  (parent=structural)
+    w.dummy 			=  0;                                               % number of dummy files
+    w.anat_ref          = 'T1_MPRAGE';                                              % part of anatomical filename
    
-    %% On info.txt	  
+    
+    %% Parameters from 'info.txt'of EPI files	  
     w.nSlices           = 54;     % Number of slices
     w.TR                = 1.224;  % Repetition time (s)
     w.thickness         = 2.5;    % Slice thickness (mm)
     
-    % Define Fieldmap Parameters 
+   	%% Parameters from Fieldmap files 
     w.SHORT_ECHO_TIME   = 4.92;        
     w.LONG_ECHO_TIME    = 7.38;   
-    w.READOUT_TIME      =  42; % from EPI info file  
+    w.READOUT_TIME      =  42; % from EPI info file 
+    
     
     %%===================================================================== 
     % Loop on subjects
     for iS=1:numel(w.subjects)
+        
+        fprintf('==================================================================\n');
+        fprintf([w.subjects{iS} ' Preprocessing...\n']);       
+        
          
         % Session order for the first level analysis
         w.sessions_First = {};
@@ -102,7 +107,6 @@ function CREx_fMRI_Preprocessing_Prisma
                    w.prefix.fieldmap_phase  =  '028_Fieldmap'; 
         end
        
-
         w.subName          = w.subjects{iS};
         w.subPath          = fullfile (w.dataDir,  w.subjects{iS}); 
         w.funcPath         = fullfile (w.subPath, w.funcDir);
@@ -124,19 +128,17 @@ function CREx_fMRI_Preprocessing_Prisma
         
         cd(w.subPath);
            
-
-        %%===== Do Preprocessing step by step
         
-         DoFieldMap(w, iS); 
-         DoSliceTiming(w);
-         DoRealignUnwarp(w);
-         DoCoregister(w);
-         DoSegment(w);
-         DoNormalise(w);
-         DoSmooth(w)
-         DoExplicitMask(w)
-   
-        %%=====
+        %%===== Do Preprocessing step by step  ============================     
+        DoFieldMap(w, iS); 
+        DoSliceTiming(w);
+        DoRealignUnwarp(w);
+        DoCoregister(w);
+        DoSegment(w);
+        DoNormalise(w);
+        DoSmooth(w)
+        DoExplicitMask(w) 
+        %%================================================================= 
     end    
 end
 
@@ -468,9 +470,9 @@ function DoExplicitMask(w)
     P = [wc1; wc2; wc3];  
     
     matlabbatch{1}.spm.util.imcalc.input = cellstr(P);
-    matlabbatch{1}.spm.util.imcalc.output = fullfile(w.T1Path, 'explicitMask_wc1wc2wc3.nii');
+    matlabbatch{1}.spm.util.imcalc.output = fullfile(w.T1Path, 'explicitMask_wc1wc2wc3_0.3.nii');
     matlabbatch{1}.spm.util.imcalc.outdir = {''};
-    matlabbatch{1}.spm.util.imcalc.expression = '(i1 + i2 +i3)>0';
+    matlabbatch{1}.spm.util.imcalc.expression = '(i1 + i2 +i3)>0.3';
     matlabbatch{1}.spm.util.imcalc.options.dmtx = 0;
     matlabbatch{1}.spm.util.imcalc.options.mask = 0;
     matlabbatch{1}.spm.util.imcalc.options.interp = 1;
@@ -482,4 +484,3 @@ function DoExplicitMask(w)
     spm_jobman('run',matlabbatch);  
     
 end
-
