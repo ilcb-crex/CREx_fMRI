@@ -136,8 +136,9 @@ function CREx_fMRI_Preprocessing_Prisma
         DoCoregister(w);
         DoSegment(w);
         DoNormalise(w);
-        DoSmooth(w)
-        DoExplicitMask(w) 
+        DoSmooth(w);
+        DoExplicitMask(w);
+	DoART_Outliers_regression(w);
         %%================================================================= 
     end    
 end
@@ -483,4 +484,14 @@ function DoExplicitMask(w)
     spm_jobman('initcfg');
     spm_jobman('run',matlabbatch);  
     
+end
+
+function DoART_Outliers_regression(w)
+  normEPI = {};
+    for j=1:numel(w.sessions) 
+        % Get EPI Realigned files without dummy files
+        normEPI {j} = spm_select('FPList',  fullfile(w.funcPath, w.sessions{j}), ['^wua' w.subName '.*\.nii$']);        
+       
+    end
+    CREx_art_batch(normEPI, w.subName, w.subPath);
 end
