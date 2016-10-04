@@ -493,5 +493,5 @@ function DoART_Outliers_regression(w)
         normEPI {j} = spm_select('FPList',  fullfile(w.funcPath, w.sessions{j}), ['^wua' w.subName '.*\.nii$']);        
        
     end
-    CREx_art_batch(normEPI, w.subName, w.subPath);
+    CREx_fMRI_art_batch(normEPI, w.subName, w.subPath);
 end
