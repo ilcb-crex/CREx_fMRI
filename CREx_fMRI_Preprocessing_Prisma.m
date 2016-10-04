@@ -20,11 +20,10 @@ function CREx_fMRI_Preprocessing_Prisma
            
     w.funcDir           =  'Functional';                                            % functional directory (parent=subject)
     w.structDir         =  'Structural';                                            % structural directory (parent=subject)
-    w.sessions          = {'func01', 'func02', 'func03', 'func04', 'func05'};   	% session directory (parent=functional)
+    w.sessions          =  {'func01', 'func02', 'func03', 'func04', 'func05'};   	% session directory (parent=functional)
     w.T1Dir             =  'anat01';                                                % T1 directory (parent=structural)
     w.fieldMapDir       =  'fieldmap01';                                            % fieldmap directory  (parent=structural)
-    w.dummy 			=  0;                                               % number of dummy files
-    w.anat_ref          = 'T1_MPRAGE';                                              % part of anatomical filename
+    w.anat_ref          =  'T1_MPRAGE';                                              % part of anatomical filename
    
     
     %% Parameters from 'info.txt'of EPI files	  
@@ -44,35 +43,7 @@ function CREx_fMRI_Preprocessing_Prisma
         
         fprintf('==================================================================\n');
         fprintf([w.subjects{iS} ' Preprocessing...\n']);       
-        
-         
-        % Session order for the first level analysis
-        w.sessions_First = {};
-        switch (w.subjects{iS})
-            
-            case {'02CE', '04AC', '06EC', '08NB', '10TL', '12SP', '14EP','16SM','18EF', '20ET', '22SR', '24IA'}
-                w.sessions_First    = {'func02', 'func01', 'func04', 'func03'}; 
-                
-            
-            case {'01LA', '03NC', '05GV','07MR',  '09BK','11CL',  '13CC', '17NR', '19AK',  '21LP', '23LG', 'pilote2'}
-                w.sessions_First	= {'func01', 'func02', 'func03', 'func04'};      
-            
-        end 
-        
-        % Labview prefix of behavioral files
-        w.AudioLabview = {};
-        switch (w.subjects{iS})
-            case {'01LA','02CE'}
-                w.AudioLabview  = {'COMPR1', 'PERCE1', 'COMPR2', 'PERCE2'};           
-            
-            case {'04AC', '06EC', '08NB', '10TL', '12SP', '14EP','16SM','18EF', '20ET', '22SR', '24IA'}
-                w.AudioLabview = {'RUN2_COMPR', 'RUN1_PERCE', 'RUN4_COMPR', 'RUN3_PERCE'};
-                
-            case {'03NC', '05GV','07MR',  '09BK','11CL',  '13CC', '17NR', '19AK',  '21LP', '23LG', 'pilote2'}  
-                w.AudioLabview = {'RUN1_COMPR', 'RUN2_PERCE', 'RUN3_COMPR', 'RUN4_PERCE'};         
-        end 
-  
-        
+
         % Fieldmap prefix 
         w.prefix.fieldmap_mag   = '';   
         w.prefix.fieldmap_phase	= '';  
@@ -103,8 +74,8 @@ function CREx_fMRI_Preprocessing_Prisma
                    w.prefix.fieldmap_phase  =  '023_Fieldmap'; 
 
             case {'09BK'}  
-                   w.prefix.fieldmap_mag    =  '027_Fieldmap';      %%%%%%%%%%%%% 2 Fieldmap files !!!
-                   w.prefix.fieldmap_phase  =  '028_Fieldmap'; 
+                   w.prefix.fieldmap_mag    =  '010_Fieldmap';     
+                   w.prefix.fieldmap_phase  =  '011_Fieldmap'; 
         end
        
         w.subName          = w.subjects{iS};
@@ -143,6 +114,7 @@ function CREx_fMRI_Preprocessing_Prisma
     end    
 end
 
+
 function DoFieldMap(w, iS)
 
     %% magnitude    
@@ -152,10 +124,15 @@ function DoFieldMap(w, iS)
     phase_diff = spm_select('FPList', w.fieldmapPath,[w.prefix.fieldmap_phase '.*\.nii$']); 
         
 	%% Get the T1 template  
-    template	=   which('T1.nii');
+    path_FielpMap = which('Fieldmap');
+    [path name ext] = fileparts(path_FielpMap);
+    template	=   fullfile(path, 'T1.nii');
 
     %% Get T1 structural file
     anatFile    =   spm_select('FPList', w.T1Path, ['^' w.subName   '.*' w.anat_ref '.*\.nii$']); 
+    
+    %% Get the fisrt EPI file removing dummy files    
+    EPIfile = spm_select('ExtFPList',  fullfile(w.funcPath, w.sessions{1}), ['^' w.subName  '.*\.nii$'], 1:1); 
     
     matlabbatch{1}.spm.tools.fieldmap.calculatevdm.subj.data.presubphasemag.phase = cellstr(phase_diff);
     matlabbatch{1}.spm.tools.fieldmap.calculatevdm.subj.data.presubphasemag.magnitude = cellstr(shortmag);   
@@ -175,28 +152,7 @@ function DoFieldMap(w, iS)
     matlabbatch{1}.spm.tools.fieldmap.calculatevdm.subj.defaults.defaultsval.mflags.ndilate = 4;
     matlabbatch{1}.spm.tools.fieldmap.calculatevdm.subj.defaults.defaultsval.mflags.thresh = 0.5;
     matlabbatch{1}.spm.tools.fieldmap.calculatevdm.subj.defaults.defaultsval.mflags.reg = 0.02;  
-    
-    for j=1:numel(w.sessions)
-        
-        switch (w.subName)
-            case {'09BK'}       
-                % Only for RUN1 and RUN2 
-                if (j <=2)
-
-                %% magnitude
-                shortmag = spm_select('ExtFPList', w.fieldmapPath,['010_Fieldmap.*\.nii$'], 1:1); 
-
-                %% phase difference in radian 
-                phase_diff = spm_select('FPList', w.fieldmapPath,['011_Fieldmap.*\.nii$']); 
-            end
-        end
-       
-        %% Get the fisrt EPI file removing dummy files
-        % f = spm_select('FPList',  fullfile(w.funcPath, w.sessions{j}), ['^' w.subName  '.*\.nii$']);       
-        EPIfile = spm_select('ExtFPList',  fullfile(w.funcPath, w.sessions{j}), ['^' w.subName  '.*\.nii$'], w.dummy+1:w.dummy+1); 
-
-        matlabbatch{1}.spm.tools.fieldmap.calculatevdm.subj.session(j).epi = cellstr(EPIfile);  
-    end
+    matlabbatch{1}.spm.tools.fieldmap.calculatevdm.subj.session.epi = cellstr(EPIfile);  
     matlabbatch{1}.spm.tools.fieldmap.calculatevdm.subj.matchvdm = 0;
     matlabbatch{1}.spm.tools.fieldmap.calculatevdm.subj.sessname = 'session';
     matlabbatch{1}.spm.tools.fieldmap.calculatevdm.subj.writeunwarped = 0;
