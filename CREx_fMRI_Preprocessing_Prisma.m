@@ -7,7 +7,6 @@ function CREx_fMRI_Preprocessing_Prisma
     % platform (fMRI Center, Timone Hospital, Marseille, France)
     % Date: June 29, 2016
     
-     
     
     % Initialise SPM
     spm('defaults','fmri');  
@@ -17,7 +16,7 @@ function CREx_fMRI_Preprocessing_Prisma
     w.dataDir           = 'F:\IRM\Intermod2\Data\PREPROC';      % root directory 
     w.subjects          = {'01LA', '02CE', '03NC', '04AC', '05GV', '06EC', '07MR', '08NB', '09BK','10TL', '11CL', '12SP', '13CC',...
                         '14EP','16SM','17NR','18EF', '19AK', '20ET', '21LP', '22SR', '23LG', '24IA', 'pilote2'};  % subject directory (parent=dataDir)
-           
+                          
     w.funcDir           =  'Functional';                                            % functional directory (parent=subject)
     w.structDir         =  'Structural';                                            % structural directory (parent=subject)
     w.sessions          =  {'func01', 'func02', 'func03', 'func04', 'func05'};   	% session directory (parent=functional)
@@ -31,7 +30,7 @@ function CREx_fMRI_Preprocessing_Prisma
     w.TR                = 1.224;  % Repetition time (s)
     w.thickness         = 2.5;    % Slice thickness (mm)
     
-   	%% Parameters from Fieldmap files 
+    %% Parameters from Fieldmap files 
     w.SHORT_ECHO_TIME   = 4.92;        
     w.LONG_ECHO_TIME    = 7.38;   
     w.READOUT_TIME      =  42; % from EPI info file 
@@ -43,7 +42,7 @@ function CREx_fMRI_Preprocessing_Prisma
         
         fprintf('==================================================================\n');
         fprintf([w.subjects{iS} ' Preprocessing...\n']);       
-
+        
         % Fieldmap prefix 
         w.prefix.fieldmap_mag   = '';   
         w.prefix.fieldmap_phase	= '';  
@@ -74,7 +73,7 @@ function CREx_fMRI_Preprocessing_Prisma
                    w.prefix.fieldmap_phase  =  '023_Fieldmap'; 
 
             case {'09BK'}  
-                   w.prefix.fieldmap_mag    =  '010_Fieldmap';     
+                   w.prefix.fieldmap_mag    =  '010_Fieldmap';      
                    w.prefix.fieldmap_phase  =  '011_Fieldmap'; 
         end
        
@@ -101,15 +100,15 @@ function CREx_fMRI_Preprocessing_Prisma
            
         
         %%===== Do Preprocessing step by step  ============================     
-        DoFieldMap(w, iS); 
+        DoFieldMap(w, iS);          
         DoSliceTiming(w);
         DoRealignUnwarp(w);
         DoCoregister(w);
         DoSegment(w);
         DoNormalise(w);
-        DoSmooth(w);
-        DoExplicitMask(w);
-	DoART_Outliers_regression(w);
+        DoSmooth(w)
+        DoExplicitMask(w) 
+        DoART_Outliers_regression(w);        
         %%================================================================= 
     end    
 end
@@ -172,12 +171,8 @@ function DoSliceTiming(w)
     % Loop for sessions
     matlabbatch{1}.spm.temporal.st.scans = {};
     for j=1:numel(w.sessions)
-
         %% Get EPI raw files           
-        f = spm_select('FPList',  fullfile(w.funcPath, w.sessions{j}), ['^' w.subName   '.*\.nii$']);        
-        nScans = get_nii_frame(f);
-        f = spm_select('ExtFPList',  fullfile(w.funcPath, w.sessions{j}), ['^' w.subName   '.*\.nii$'], w.dummy+1:nScans); 
- 
+        f = spm_select('ExtFPList',  fullfile(w.funcPath, w.sessions{j}), ['^' w.subName   '.*\.nii$'], 1:999);
         matlabbatch{1}.spm.temporal.st.scans{j} = cellstr(f); 
         %%
     end
@@ -207,20 +202,17 @@ function DoRealignUnwarp(w)
         vdm = cellstr(spm_select('FPList', w.fieldmapPath, expReg));  % vdm (voxel depplacement map) file or phase map
         
         % Get EPI Sliced files without dummy files   
-        f = spm_select('FPList',  fullfile(w.funcPath, w.sessions{j}), ['^a' w.subName  '.*'  '.*\.nii$']);        
-        nScans = get_nii_frame(f);
-        newF = spm_select('ExtFPList',  fullfile(w.funcPath, w.sessions{j}), ['^a' w.subName  '.*'  '.*\.nii$'], w.dummy+1:nScans);  
-        EPI = cellstr(newF); 
-        
-        matlabbatch{1}.spm.spatial.realignunwarp.data(j).scans     = EPI; 
+        f = spm_select('ExtFPList',  fullfile(w.funcPath, w.sessions{j}), ['^a' w.subName  '.*'  '.*\.nii$'], 1:999);  
+
+        matlabbatch{1}.spm.spatial.realignunwarp.data(j).scans     = cellstr(f); 
         matlabbatch{1}.spm.spatial.realignunwarp.data(j).pmscan    = vdm;
             
     end             
 
     matlabbatch{1}.spm.spatial.realignunwarp.eoptions.quality = 0.9;
-    matlabbatch{1}.spm.spatial.realignunwarp.eoptions.sep = 4;
+    matlabbatch{1}.spm.spatial.realignunwarp.eoptions.sep = 2.5;
     matlabbatch{1}.spm.spatial.realignunwarp.eoptions.fwhm = 5; 
-    matlabbatch{1}.spm.spatial.realignunwarp.eoptions.rtm = 0;
+    matlabbatch{1}.spm.spatial.realignunwarp.eoptions.rtm = 1;
     matlabbatch{1}.spm.spatial.realignunwarp.eoptions.einterp = 2; % 2edegree Bspline (default value)
     matlabbatch{1}.spm.spatial.realignunwarp.eoptions.ewrap = [0 0 0];      
     matlabbatch{1}.spm.spatial.realignunwarp.eoptions.weight = '';
@@ -340,11 +332,8 @@ function DoNormalise(w)
     % Loop on sessions
     for j=1:numel(w.sessions)            
         % Get EPI Realigned files without dummy files
-        f = spm_select('FPList',  fullfile(w.funcPath, w.sessions{j}), ['^ua' w.subName   '.*\.nii$']);        
-        nScans = get_nii_frame(f);
-        newF = spm_select('ExtFPList',  fullfile(w.funcPath, w.sessions{j}), ['^ua' w.subName '.*\.nii$'], w.dummy+1:nScans);  
-        f = cellstr(newF);
-        EPI = vertcat(EPI, f);      
+        f = spm_select('ExtFPList',  fullfile(w.funcPath, w.sessions{j}), ['^ua' w.subName '.*\.nii$'], 1:999);  
+        EPI = vertcat(EPI, cellstr(f));      
     end
     
     % Get c1  c2  and c3 
@@ -398,11 +387,8 @@ function DoSmooth(w)
     for j=1:numel(w.sessions)
     
         % Get EPI Realigned files without dummy files
-        f = spm_select('FPList',  fullfile(w.funcPath, w.sessions{j}), ['^wua' w.subName '.*\.nii$']);        
-        nScans = get_nii_frame(f);
-        newF = spm_select('ExtFPList',  fullfile(w.funcPath, w.sessions{j}), ['^wua' w.subName '.*\.nii$'], w.dummy+1:nScans); 
-        f = cellstr(newF);
-        EPI = vertcat(EPI, f);           
+        f = spm_select('ExtFPList',  fullfile(w.funcPath, w.sessions{j}), ['^wua' w.subName '.*\.nii$'], 1:999); 
+        EPI = vertcat(EPI, cellstr(f));           
     end
     matlabbatch{1}.spm.spatial.smooth.data = cellstr(EPI);
     matlabbatch{1}.spm.spatial.smooth.fwhm = [(w.thickness*2) (w.thickness*2) (w.thickness*2)];
@@ -449,5 +435,9 @@ function DoART_Outliers_regression(w)
         normEPI {j} = spm_select('FPList',  fullfile(w.funcPath, w.sessions{j}), ['^wua' w.subName '.*\.nii$']);        
        
     end
-    CREx_fMRI_art_batch(normEPI, w.subName, w.subPath);
+    CREx_art_batch(normEPI, w.subName, w.subPath);
 end
+
+
+
+
