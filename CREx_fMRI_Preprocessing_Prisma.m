@@ -431,9 +431,8 @@ end
 function DoART_Outliers_regression(w)
   normEPI = {};
     for j=1:numel(w.sessions) 
-        % Get EPI Realigned files without dummy files
-        normEPI {j} = spm_select('FPList',  fullfile(w.funcPath, w.sessions{j}), ['^wua' w.subName '.*\.nii$']);        
-       
+        % Get EPI Normalised files (4D file) per session
+        normEPI {j} = spm_select('FPList',  fullfile(w.funcPath, w.sessions{j}), ['^wua' w.subName '.*\.nii$']);             
     end
     CREx_art_batch(normEPI, w.subName, w.subPath);
 end
