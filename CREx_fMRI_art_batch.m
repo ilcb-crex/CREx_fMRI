@@ -1,4 +1,4 @@
-function CREx_fmri_art_batch(normEPI, subName, outputDir)
+function CREx_fMRI_art_batch(normEPI, subName, outputDir)
     % Modified version of ART_BATCH - https://www.nitrc.org/projects/artifact_detect/
     % Modification : Batch processing of one subject from normalised EPI files (4D)
     % Create the config file 'art_config.cfg' and use ART_BATCH 
