@@ -338,8 +338,9 @@ function DoNormalise(w)
     
     % Get c1  c2  and c3 
     c1 = spm_select('FPList', w.T1Path, ['^c1' w.subName  '.*\.nii$']); 
-    c2 = spm_select('FPList', w.T1Path, ['^c2' w.subName   '.*\.nii$']); 
-    c3 = spm_select('FPList', w.T1Path, ['^c3' w.subName   '.*\.nii$']); 
+    c2 = spm_select('FPList', w.T1Path, ['^c2' w.subName   '.*\.nii$']);  
+    c3 = spm_select('FPList', w.T1Path, ['^c3' w.subName   '.*\.nii$']);  
+    c1c2c3 = vertcat(c1, c2, c3);   
             
     clear matlabbatch;         
     matlabbatch{1}.spm.spatial.normalise.write.subj.def = {forwardDeformation};
@@ -355,22 +356,10 @@ function DoNormalise(w)
     matlabbatch{2}.spm.spatial.normalise.write.woptions.interp = 4;
     
     matlabbatch{3}.spm.spatial.normalise.write.subj.def(1) = {forwardDeformation};
-    matlabbatch{3}.spm.spatial.normalise.write.subj.resample = cellstr(c1);    
+    matlabbatch{3}.spm.spatial.normalise.write.subj.resample = cellstr(c1c2c3) ;   
     matlabbatch{3}.spm.spatial.normalise.write.woptions.bb = NaN(2,3);
     matlabbatch{3}.spm.spatial.normalise.write.woptions.vox = [w.thickness w.thickness w.thickness];
-    matlabbatch{3}.spm.spatial.normalise.write.woptions.interp = 4;   
-    
-    matlabbatch{4}.spm.spatial.normalise.write.subj.def(1) = {forwardDeformation};
-    matlabbatch{4}.spm.spatial.normalise.write.subj.resample = cellstr(c2);    
-    matlabbatch{4}.spm.spatial.normalise.write.woptions.bb = NaN(2,3);
-    matlabbatch{4}.spm.spatial.normalise.write.woptions.vox = [w.thickness w.thickness w.thickness];
-    matlabbatch{4}.spm.spatial.normalise.write.woptions.interp = 4;     
-    
-    matlabbatch{5}.spm.spatial.normalise.write.subj.def(1) = {forwardDeformation};
-    matlabbatch{5}.spm.spatial.normalise.write.subj.resample = cellstr(c3);    
-    matlabbatch{5}.spm.spatial.normalise.write.woptions.bb = NaN(2,3);
-    matlabbatch{5}.spm.spatial.normalise.write.woptions.vox = [w.thickness w.thickness w.thickness];
-    matlabbatch{5}.spm.spatial.normalise.write.woptions.interp = 4;        
+    matlabbatch{3}.spm.spatial.normalise.write.woptions.interp = 4;         
 
     save(fullfile(w.subPath, 'SPM12_matlabbatch_6_Normalize.mat'),'matlabbatch');   
     
