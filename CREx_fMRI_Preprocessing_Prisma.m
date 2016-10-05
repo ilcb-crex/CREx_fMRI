@@ -172,7 +172,7 @@ function DoSliceTiming(w)
     matlabbatch{1}.spm.temporal.st.scans = {};
     for j=1:numel(w.sessions)
         %% Get EPI raw files           
-        f = spm_select('ExtFPList',  fullfile(w.funcPath, w.sessions{j}), ['^' w.subName   '.*\.nii$'], 1:999);
+        f = spm_select('ExtFPList',  fullfile(w.funcPath, w.sessions{j}), ['^' w.subName   '.*\.nii$'], Inf);
         matlabbatch{1}.spm.temporal.st.scans{j} = cellstr(f); 
         %%
     end
@@ -202,7 +202,7 @@ function DoRealignUnwarp(w)
         vdm = cellstr(spm_select('FPList', w.fieldmapPath, expReg));  % vdm (voxel depplacement map) file or phase map
         
         % Get EPI Sliced files without dummy files   
-        f = spm_select('ExtFPList',  fullfile(w.funcPath, w.sessions{j}), ['^a' w.subName  '.*'  '.*\.nii$'], 1:999);  
+        f = spm_select('ExtFPList',  fullfile(w.funcPath, w.sessions{j}), ['^a' w.subName  '.*'  '.*\.nii$'], Inf);  
 
         matlabbatch{1}.spm.spatial.realignunwarp.data(j).scans     = cellstr(f); 
         matlabbatch{1}.spm.spatial.realignunwarp.data(j).pmscan    = vdm;
@@ -332,7 +332,7 @@ function DoNormalise(w)
     % Loop on sessions
     for j=1:numel(w.sessions)            
         % Get EPI Realigned files without dummy files
-        f = spm_select('ExtFPList',  fullfile(w.funcPath, w.sessions{j}), ['^ua' w.subName '.*\.nii$'], 1:999);  
+        f = spm_select('ExtFPList',  fullfile(w.funcPath, w.sessions{j}), ['^ua' w.subName '.*\.nii$'], Inf);  
         EPI = vertcat(EPI, cellstr(f));      
     end
     
@@ -376,7 +376,7 @@ function DoSmooth(w)
     for j=1:numel(w.sessions)
     
         % Get EPI Realigned files without dummy files
-        f = spm_select('ExtFPList',  fullfile(w.funcPath, w.sessions{j}), ['^wua' w.subName '.*\.nii$'], 1:999); 
+        f = spm_select('ExtFPList',  fullfile(w.funcPath, w.sessions{j}), ['^wua' w.subName '.*\.nii$'], Inf); 
         EPI = vertcat(EPI, cellstr(f));           
     end
     matlabbatch{1}.spm.spatial.smooth.data = cellstr(EPI);
