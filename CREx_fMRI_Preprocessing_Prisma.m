@@ -1,5 +1,5 @@
 function CREx_fMRI_Preprocessing_Prisma
-    % Example of Preprocessing implementation for SPM
+    % Example of Preprocessing implementation for SPM12
     % Author: Valérie Chanoine, Research Engineer at Brain and Language
     % Institute (http://www.blri.fr/)
     % Co-authors from BLRI: Samuel Planton and Chotiga Pattadimalok
@@ -7,6 +7,7 @@ function CREx_fMRI_Preprocessing_Prisma
     % platform (fMRI Center, Timone Hospital, Marseille, France)
     % Date: June 29, 2016
     
+    close all; clear all; clc;
     
     % Initialise SPM
     spm('defaults','fmri');  
