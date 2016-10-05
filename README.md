@@ -12,6 +12,7 @@ See https://blricrex.hypotheses.org/fmri/  for more details
 
 
 * CREx_fMRI_art_batch
+
 Script adapted from ART toolbox to not use smoothed functional files but normalised functional files 
 
 * CREx_fMRI_Preprocessing_Brucker
