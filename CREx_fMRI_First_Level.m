@@ -182,7 +182,7 @@ function DoFirstLevel(w, bEvent, bWithArt)
     Nonwords    = conds(3,:);
     Response    = conds(4,:);
  
-	matlabbatch{3}.spm.stats.con.spmmat = cellstr(fullfile(firstDir,'SPM.mat'));   
+    matlabbatch{3}.spm.stats.con.spmmat = cellstr(fullfile(firstDir,'SPM.mat'));   
  
     %% Contrasts T (betas)    
     matlabbatch{3}.spm.stats.con.consess{1}.tcon.name = 'FIXATION';
