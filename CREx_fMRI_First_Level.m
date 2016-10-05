@@ -1,6 +1,6 @@
 function CREx_fMRI_First_Level
     % Example of Preprocessing implementation for SPM
-    % Author: Valérie Chanoine, Research Engineer at Brain and Language
+    % Author: ValÃ©rie Chanoine, Research Engineer at Brain and Language
     % Institute (http://www.blri.fr/)
     % Co-authors from BLRI: Samuel Planton and Chotiga Pattadimalok
     % Co-authors from fMRI platform:   Julien Sein, Jean-Luc Anton, Bruno Nazarian and Pascal Belin from fMRI
@@ -196,7 +196,7 @@ function DoFirstLevel(w, bEvent, bWithArt)
     matlabbatch{3}.spm.stats.con.consess{3}.tcon.sessrep = 'none';
     matlabbatch{3}.spm.stats.con.consess{4}.tcon.name = 'RESPONSE';
     matlabbatch{3}.spm.stats.con.consess{4}.tcon.weights = [Response no_interest_reg{1}];
-	matlabbatch{3}.spm.stats.con.consess{4}.tcon.sessrep = 'none';
+    matlabbatch{3}.spm.stats.con.consess{4}.tcon.sessrep = 'none';
      
 	%% Contrasts T (comparisons)   
     matlabbatch{3}.spm.stats.con.consess{5}.tcon.name = 'WORDS > FIXATION';
@@ -242,7 +242,7 @@ function DoFirstLevel(w, bEvent, bWithArt)
     end
     
     %% Run job          
-	spm_jobman('initcfg');
+    spm_jobman('initcfg');
     spm_jobman('run',matlabbatch);  
-    
+   
 end
