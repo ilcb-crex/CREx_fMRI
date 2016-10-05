@@ -6,7 +6,9 @@ function CREx_fMRI_First_Level
     % Co-authors from fMRI platform:   Julien Sein, Jean-Luc Anton, Bruno Nazarian and Pascal Belin from fMRI
     % platform (fMRI Center, Timone Hospital, Marseille, France)
     % Date: Oct 10, 2016
-      
+    
+    close all; clear all; clc;
+    
     %% Initialise SPM
     spm('defaults','fmri');  
     spm_jobman('initcfg');   
