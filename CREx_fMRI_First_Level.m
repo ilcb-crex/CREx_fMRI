@@ -1,5 +1,5 @@
 function CREx_fMRI_First_Level
-    % Example of Preprocessing implementation for SPM12
+    % Example of First-Level implementation for SPM12
     % Author: Valérie Chanoine, Research Engineer at Brain and Language
     % Institute (http://www.blri.fr/)
     % Co-authors from BLRI: Samuel Planton and Chotiga Pattadimalok
