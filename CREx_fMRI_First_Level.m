@@ -150,7 +150,7 @@ function DoFirstLevel(w, bEvent, bWithArt)
     end
     
     %% Get Explicit mask
-    explicitMask = spm_select('FPList', w.T1Path, '^explicitMask_wc1wc2wc3_03.nii$'); 
+    explicitMask = spm_select('FPList', w.T1Path, '^explicitMask_wc1wc2wc3_0.3.nii$'); 
       
     matlabbatch{1}.spm.stats.fmri_spec.fact = struct('name', {}, 'levels', {});
     matlabbatch{1}.spm.stats.fmri_spec.bases.hrf.derivs = [0 0];
