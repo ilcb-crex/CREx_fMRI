@@ -7,7 +7,7 @@ function CREx_fMRI_PPPI_WRAPPER
 %   subjects and for multiple seed volumes-of-interest (VOI). 
 %   You can download the toolbox and find further information at:
 %   http://www.brainmap.wisc.edu/PPI
-%   Author: Valérie Chanoine, Research Engineer at Brain and Language
+%   Author: ValÃ©rie Chanoine, Research Engineer at Brain and Language
 %   Co-authors from BLRI: Samuel Planton and Chotiga Pattadimalok
 %==========================================================================
 
@@ -94,7 +94,7 @@ function CREx_fMRI_PPPI_WRAPPER
             end             
                 
               
-         	P.Estimate  = 1;      % estimate the PPI design (1 = yes, 0 = no)
+            P.Estimate  = 1;      % estimate the PPI design (1 = yes, 0 = no)
             P.CompContrasts = 0; % estimate any contrasts (1 = yes, Default = no)
 
             
