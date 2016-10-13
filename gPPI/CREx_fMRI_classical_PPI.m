@@ -3,7 +3,7 @@ function CREx_fMRI_classical_PPI
 % CLASSICAL PSYCHO-PHYSIOLOGICAL INTERACTION (PPI) 
 %
 % Script for Classical implementation of PPI using SPM12
-% Author: Valérie Chanoine, Research Engineer at Brain and Language
+% Author: ValÃ©rie Chanoine, Research Engineer at Brain and Language
 % Co-authors from BLRI: Samuel Planton and Chotiga Pattadimalok
 %==========================================================================
 
@@ -95,8 +95,8 @@ function CREx_fMRI_classical_PPI
         
         VOI2.name = 'IFG_Tri';
         VOI2.centre = [-42 14 19];
-        VOI2.radius = 4;  
-        VOI2.spm.contrast = 3; % COMPs_s + PERC_s_s       
+        VOI2.radius = 6;  
+        VOI2.spm.contrast = 4; % COMPs_s + PERC_s_s       
                
         DoClassicalPPI(w, bEvent, VOI1,VOI2);          
     end
