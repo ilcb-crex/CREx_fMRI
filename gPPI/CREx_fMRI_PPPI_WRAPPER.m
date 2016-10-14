@@ -27,8 +27,8 @@ function CREx_fMRI_PPPI_WRAPPER
     
 	% Subjects 
     %----------------------------------------------------------------------   
-    % w.subjects     	= {'01LA', '02CE'};
-    w.subjects     	= {'02CE'};
+    w.subjects     	= {'01LA', '02CE'};
+  
    
     % Regions
     %----------------------------------------------------------------------  
@@ -44,7 +44,7 @@ function CREx_fMRI_PPPI_WRAPPER
   	% Define the method generalized (condition-specific) method 
     %----------------------------------------------------------------------     
     % 'trad' for traditional method, 'cond' for generalized (condition-specific) method 
-    w.method = 'cond';
+    w.method = 'trad';
 
     
     % Loop on Subjects
