@@ -378,7 +378,7 @@ function DoClassicalPPI(w, bEvent, VOI1, VOI2)
     %======================================================================
     matlabbatch{1}.spm.stats.ppi.spmmat = cellstr(fullfile(w.GLMDir,'SPM.mat')); 
     matlabbatch{1}.spm.stats.ppi.type.ppi.voi = cellstr(fullfile(w.GLMDir, ['VOI_' VOI1.name '_1.mat']));
-    matlabbatch{1}.spm.stats.ppi.type.ppi.u = [ 2 1 1; 3 1 -1]; % COMPs_s > PERCs_s
+    matlabbatch{1}.spm.stats.ppi.type.ppi.u = [1 1 -1; 3 1 1; 6 1 -1; 8 1 1]; % COMPs_s > PERCs_s
     matlabbatch{1}.spm.stats.ppi.name = VOI1.ppi.name;
     matlabbatch{1}.spm.stats.ppi.disp = 0;
 
