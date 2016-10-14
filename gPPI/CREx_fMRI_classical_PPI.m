@@ -29,8 +29,6 @@ function CREx_fMRI_classical_PPI
     w.T1Dir             =  'anat01';         % T1 directory (parent=structural)
     w.stimDir           =  'Stim';  
     w.TR                = 1.224;  % Repetition time (s)
- 
-    w.subjects          = {'01LA'};  
 
 
     % Loop on subjects
