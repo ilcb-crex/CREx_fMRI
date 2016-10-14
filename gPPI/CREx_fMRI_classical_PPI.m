@@ -215,12 +215,12 @@ function SpecifyAndEstimateModel(w, bEvent)
     %  Model Estimation
     %======================================================================   
 
-	matlabbatch{2}.spm.stats.fmri_est.spmmat = cellstr(fullfile(w.GLMDir,'SPM.mat'));
+    matlabbatch{2}.spm.stats.fmri_est.spmmat = cellstr(fullfile(w.GLMDir,'SPM.mat'));
     matlabbatch{2}.spm.stats.fmri_est.method.Classical = 1;   
     
     save(fullfile(w.GLMDir, 'SPM12_matlabbatch_1_classicalPPI_GLM_SpecMod.mat'),'matlabbatch');
 
-	spm_jobman('initcfg');
+    spm_jobman('initcfg');
     spm_jobman('run',matlabbatch);  
 end
 
@@ -344,12 +344,12 @@ function VOI_ExtractTimeSeries(w, VOI)
     %----------------------------------------------------------------------
     matlabbatch{1}.spm.util.voi.spmmat = cellstr(fullfile(w.GLMDir,'SPM.mat')); 
     matlabbatch{1}.spm.util.voi.adjust = 1;
-    matlabbatch{1}.spm.util.voi.session = 1; %%%% 
+    matlabbatch{1}.spm.util.voi.session = 1; 
     matlabbatch{1}.spm.util.voi.name = VOI.name;
     matlabbatch{1}.spm.util.voi.roi{1}.spm.spmmat = {''};
     matlabbatch{1}.spm.util.voi.roi{1}.spm.contrast = VOI.spm.contrast;
     matlabbatch{1}.spm.util.voi.roi{1}.spm.threshdesc = 'none';
-    matlabbatch{1}.spm.util.voi.roi{1}.spm.thresh = 0.01;
+    matlabbatch{1}.spm.util.voi.roi{1}.spm.thresh = 0.001;
     matlabbatch{1}.spm.util.voi.roi{1}.spm.extent = 0;
     matlabbatch{1}.spm.util.voi.roi{2}.sphere.centre = VOI.centre;
     matlabbatch{1}.spm.util.voi.roi{2}.sphere.radius = VOI.radius;
