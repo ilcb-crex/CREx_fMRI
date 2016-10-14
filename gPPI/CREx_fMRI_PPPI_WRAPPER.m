@@ -39,7 +39,7 @@ function CREx_fMRI_PPPI_WRAPPER
     %----------------------------------------------------------------------    
     w.conditions  	= {'COMPR-SILENCE' 'PERC-SILENCE'}; 
     w.weights    	= [1 -1];  % Weights: for traditional PPI, you must specify weight vector for each condition.
-    w.PPIweights    = [1 0 0 zeros(1, 4)];      % numSessions = 4;          
+    w.PPIweights       = [1 0 0 zeros(1, 4) zeros(1, 6)];      % numSessions = 4 and numHeadMvts =6;          
     
   	% Define the method generalized (condition-specific) method 
     %----------------------------------------------------------------------     
