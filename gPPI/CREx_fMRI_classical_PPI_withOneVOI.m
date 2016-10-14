@@ -3,7 +3,7 @@ function CREx_fMRI_classical_PPI_withOneVOI
 % CLASSICAL PSYCHO-PHYSIOLOGICAL INTERACTION (PPI) 
 %
 % Script for Classical implementation of PPI using SPM12
-% Author: Valérie Chanoine, Research Engineer at Brain and Language
+% Author: ValÃ©rie Chanoine, Research Engineer at Brain and Language
 % Co-authors from BLRI: Samuel Planton and Chotiga Pattadimalok
 %==========================================================================
 
@@ -29,8 +29,6 @@ function CREx_fMRI_classical_PPI_withOneVOI
     w.T1Dir             =  'anat01';         % T1 directory (parent=structural)
     w.stimDir           =  'Stim';  
     w.TR                = 1.224;  % Repetition time (s)
- 
-    w.subjects          = {'01LA'};  
 
 
     % Loop on subjects
