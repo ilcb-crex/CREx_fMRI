@@ -403,7 +403,7 @@ function DoExplicitMask(w)
     P = [wc1; wc2; wc3];  
     
     matlabbatch{1}.spm.util.imcalc.input = cellstr(P);
-    matlabbatch{1}.spm.util.imcalc.output = fullfile(w.T1Path, 'explicitMask_wc1wc2wc3_03.nii');
+    matlabbatch{1}.spm.util.imcalc.output = fullfile(w.T1Path, 'explicitMask_wc1wc2wc3_0.3.nii');
     matlabbatch{1}.spm.util.imcalc.outdir = {''};
     matlabbatch{1}.spm.util.imcalc.expression = '(i1 + i2 +i3)>0.3';
     matlabbatch{1}.spm.util.imcalc.options.dmtx = 0;
