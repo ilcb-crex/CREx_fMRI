@@ -1,8 +1,9 @@
 function Slip_1_Preprocessing
     % Preprocessing implementation for SPM12
     % Author: Valérie Chanoine, Research Engineer at ILCB (http://www.ilcb.fr/)and BLRI (http://www.blri.fr/)
-    % Co-authors from fMRI platform:   Julien Sein, Jean-Luc Anton, Bruno Nazarian and Pascal Belin from fMRI
-    % platform (fMRI Center, CERIMED, INT, Marseille, France)
+    % Contact: Valerie.Chanoine@blri.fr
+    % Co-authors from fMRI platform: Jean-Luc Anton, Julien Sein, Bruno Nazarian and Pascal Belin from fMRI
+    % platform (MRI Center @ CERIMED, Institut de Neurosciences de la Timone, Marseille, France)
     % Date: Mars 10, 2018
     
     clear all;
@@ -19,8 +20,8 @@ function Slip_1_Preprocessing
                              'sub-17', 'sub-18', 'sub-19','sub-20','sub-21','sub-22','sub-23',...
                              'sub-24', 'sub-25', 'sub-26', 'sub-27','sub-28'}; % list of subjects
                    
-    w.anatDir          	= 'anat';            % anat directory (parent=subjDir) 
-    w.funcDir           = 'func';            % functional directory (parent=subjDir)                                           % structural directory (parent=subject)                                                  % T1 directory (parent=structural)
+    w.anatDir          	= 'anat';            % anatomical directory (parent=subjDir) 
+    w.funcDir           = 'func';            % functional directory (parent=subjDir)
     w.fmapDir           = 'fmap';            % fieldmap directory  (parent=subjDir)
     w.sessions          = {'run-01', 'run-02', 'run-03', 'run-04', 'run-05', 'run-06'}; 
     w.task              = {'task-slip'};  
@@ -45,14 +46,12 @@ function Slip_1_Preprocessing
          DoCopyFiles(w);
         
         %% Load (anatomical and functional) json files
-        [json  json_anat]= InitJasonParam(w);
+        json  = InitJasonParam(w);
        
         %% Parameters	          
         w.TR                = json.RepetitionTime;  % Repetition time (s)
         w.EchoTime          = json.EchoTime*1000;    
-        w.ReadoutTime       = json.TotalReadoutTime*1000; 
-        w.thickness         = json.SliceThickness; % Slice thickness (mm)
-        w.thickness_anat    = json_anat.SliceThickness;                
+        w.ReadoutTime       = json.TotalReadoutTime*1000;                 
         % w.nSlices           = 54;     % Number of slices NOT USED
         w.blip = 1;
         if (strfind(json.PhaseEncodingDirection, 'j-'))
@@ -121,14 +120,11 @@ function DoCopyFiles(w)
     end
 end
 
-function [json json_anat] = InitJasonParam(w)
+function json = InitJasonParam(w)
     %% Load anatomical and functional json files
     json = [];      
     f1 = spm_select('FPList',  w.funcPath, ['^' w.subName  '.*' w.sessions{1} '_bold\.json$']); 
-    json = loadjson(f1);  
-    
-    f2 = spm_select('FPList',  w.anatPath, ['^' w.subName  '.*'  '_T1w\.json$']); 
-    json_anat = loadjson(f2); 
+    json = loadjson(f1);     
 end
 
 function DoFieldMap(w)  
@@ -153,7 +149,7 @@ function DoFieldMap(w)
     matlabbatch{1}.spm.tools.fieldmap.calculatevdm.subj.data.precalcfieldmap.magfieldmap = cellstr(fmap_mag);
     
     matlabbatch{1}.spm.tools.fieldmap.calculatevdm.subj.defaults.defaultsval.et = [w.EchoTime w.EchoTime];
-    matlabbatch{1}.spm.tools.fieldmap.calculatevdm.subj.defaults.defaultsval.maskbrain = 0; % 1= Magnitude Image is choosed to generate Mask Brain
+    matlabbatch{1}.spm.tools.fieldmap.calculatevdm.subj.defaults.defaultsval.maskbrain = 0; % 1= Magnitude Image is choosen to generate Brain Mask
     matlabbatch{1}.spm.tools.fieldmap.calculatevdm.subj.defaults.defaultsval.blipdir = w.blip;
     matlabbatch{1}.spm.tools.fieldmap.calculatevdm.subj.defaults.defaultsval.tert = w.ReadoutTime; % readout time   
     matlabbatch{1}.spm.tools.fieldmap.calculatevdm.subj.defaults.defaultsval.epifm = 0;  % non-EPI based fieldmap
@@ -170,7 +166,7 @@ function DoFieldMap(w)
     matlabbatch{1}.spm.tools.fieldmap.calculatevdm.subj.defaults.defaultsval.mflags.reg = 0.02;      
   
     
-    %% Get the fisrt EPI file pe session
+    %%  Get the first EPI volume per session
     for j=1:numel(w.sessions) 
         EPIfile = spm_select('ExtFPList',  w.funcPath, ['^' w.subName  '.*' w.sessions{j} '_bold\.nii$'], 1:1);        
         matlabbatch{1}.spm.tools.fieldmap.calculatevdm.subj.session(j).epi = cellstr(EPIfile);      
@@ -207,7 +203,7 @@ function DoRealignUnwarp(w)
     matlabbatch{1}.spm.spatial.realignunwarp.eoptions.sep = 2.5;
     matlabbatch{1}.spm.spatial.realignunwarp.eoptions.fwhm = 5; 
     matlabbatch{1}.spm.spatial.realignunwarp.eoptions.rtm = 1;
-    matlabbatch{1}.spm.spatial.realignunwarp.eoptions.einterp = 2; % 2edegree Bspline (default value)
+    matlabbatch{1}.spm.spatial.realignunwarp.eoptions.einterp = 2; % 2nd degree Bspline (default value)
     matlabbatch{1}.spm.spatial.realignunwarp.eoptions.ewrap = [0 0 0];      
     matlabbatch{1}.spm.spatial.realignunwarp.eoptions.weight = '';
     matlabbatch{1}.spm.spatial.realignunwarp.uweoptions.basfcn = [12 12];
@@ -221,7 +217,7 @@ function DoRealignUnwarp(w)
     matlabbatch{1}.spm.spatial.realignunwarp.uweoptions.noi = 5;
     matlabbatch{1}.spm.spatial.realignunwarp.uweoptions.expround = 'Average';
     matlabbatch{1}.spm.spatial.realignunwarp.uwroptions.uwwhich = [2 1];
-    matlabbatch{1}.spm.spatial.realignunwarp.uwroptions.rinterp = 4;    %  4edegree Bspline (default value)
+    matlabbatch{1}.spm.spatial.realignunwarp.uwroptions.rinterp = 4;    %   % 4th degree Bspline (default value)
     matlabbatch{1}.spm.spatial.realignunwarp.uwroptions.wrap = [0 0 0];
     matlabbatch{1}.spm.spatial.realignunwarp.uwroptions.mask = 1;
     matlabbatch{1}.spm.spatial.realignunwarp.uwroptions.prefix = 'u';
@@ -255,7 +251,7 @@ end
 
 function DoSegment(w)
 
-    % Select the T1 3D image coregisterede
+    % Select the T1 image coregistered to unwarped mean functional image
     coregAnat = cellstr(spm_select('FPList', w.anatPath, ['^' w.subName '.*T1w\.nii$'])); 
   
     % Get template of each cerebral tissue
@@ -314,16 +310,25 @@ function DoNormalise(w)
 	% Get Field Deformation image
     forwardDeformation = spm_select('FPList', w.anatPath, ['^y_' w.subName '.*T1w\.nii$']);  
     
-    % Get coregistered structural image  
+    % Get coregistered structural image
     coregAnat = spm_select('FPList', w.anatPath, ['^' w.subName '.*T1w\.nii$']);  
+    
+    % Get vector of voxel dimensions {mm} on structural image
+    [BBa, vxa] =  spm_get_bbox(coregAnat);
     
     % Get Sliced EPI images of all sessions
     EPI = {};
+    vxb = [];
     % Loop on sessions
     for j=1:numel(w.sessions)      
         % Get EPI Realigned files
         f = spm_select('ExtFPList',  w.funcPath, ['^u' w.subName  '.*' w.sessions{j} '_bold\.nii$'], Inf); 
-        EPI = vertcat(EPI, cellstr(f));      
+        EPI = vertcat(EPI, cellstr(f));  
+        
+        if isempty(vxb)
+            % vector of voxel dimensions {mm} on EPI image
+            [BBb, vxb] =  spm_get_bbox(f);
+        end
     end
     
     % Get c1  c2  and c3 
@@ -331,24 +336,24 @@ function DoNormalise(w)
     c2 = spm_select('FPList', w.anatPath, ['^c2' w.subName '.*T1w\.nii$']);    
     c3 = spm_select('FPList', w.anatPath, ['^c3' w.subName '.*T1w\.nii$']);   
     c1c2c3 = vertcat(c1, c2, c3);   
-            
+           
     clear matlabbatch;         
     matlabbatch{1}.spm.spatial.normalise.write.subj.def = {forwardDeformation};
     matlabbatch{1}.spm.spatial.normalise.write.subj.resample = {coregAnat};
     matlabbatch{1}.spm.spatial.normalise.write.woptions.bb = NaN(2,3);
-    matlabbatch{1}.spm.spatial.normalise.write.woptions.vox = [w.thickness_anat w.thickness_anat  w.thickness_anat];
+    matlabbatch{1}.spm.spatial.normalise.write.woptions.vox = abs(vxa);
     matlabbatch{1}.spm.spatial.normalise.write.woptions.interp = 4;
     
     matlabbatch{2}.spm.spatial.normalise.write.subj.def(1) = {forwardDeformation};
     matlabbatch{2}.spm.spatial.normalise.write.subj.resample = cellstr(EPI);    
     matlabbatch{2}.spm.spatial.normalise.write.woptions.bb = NaN(2,3);
-    matlabbatch{2}.spm.spatial.normalise.write.woptions.vox = [w.thickness w.thickness w.thickness];
+    matlabbatch{2}.spm.spatial.normalise.write.woptions.vox = abs(vxb);
     matlabbatch{2}.spm.spatial.normalise.write.woptions.interp = 4;
     
     matlabbatch{3}.spm.spatial.normalise.write.subj.def(1) = {forwardDeformation};
     matlabbatch{3}.spm.spatial.normalise.write.subj.resample = cellstr(c1c2c3) ;   
     matlabbatch{3}.spm.spatial.normalise.write.woptions.bb = NaN(2,3);
-    matlabbatch{3}.spm.spatial.normalise.write.woptions.vox = [w.thickness w.thickness w.thickness];
+    matlabbatch{3}.spm.spatial.normalise.write.woptions.vox = abs(vxb);
     matlabbatch{3}.spm.spatial.normalise.write.woptions.interp = 4;         
 
     save(fullfile(w.subPath, 'SPM12_matlabbatch_5_Normalize.mat'),'matlabbatch');   
@@ -360,14 +365,20 @@ function DoSmooth(w)
 
     clear matlabbatch;
     EPI = [];
- 
+    vxb = [];
     for j=1:numel(w.sessions)    
         % Get Normalized EPI files
         f = spm_select('ExtFPList',  w.funcPath, ['^wu' w.subName  '.*' w.sessions{j} '_bold\.nii$'], Inf);       
-        EPI = vertcat(EPI, cellstr(f));           
+        EPI = vertcat(EPI, cellstr(f));   
+        
+        if isempty(vxb)
+            % vector of voxel dimensions {mm} on EPI image
+            [BBb, vxb] =  spm_get_bbox(f);
+        end      
+        
     end
     matlabbatch{1}.spm.spatial.smooth.data = cellstr(EPI);
-    matlabbatch{1}.spm.spatial.smooth.fwhm = [(w.thickness*2) (w.thickness*2) (w.thickness*2)];
+    matlabbatch{1}.spm.spatial.smooth.fwhm = [abs(vxb) * 2];
     matlabbatch{1}.spm.spatial.smooth.dtype = 0;
     matlabbatch{1}.spm.spatial.smooth.im = 0;
     matlabbatch{1}.spm.spatial.smooth.prefix = 's';
