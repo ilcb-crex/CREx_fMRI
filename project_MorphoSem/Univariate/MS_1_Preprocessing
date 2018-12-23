@@ -1,4 +1,4 @@
-function MS_1_Preprocessing
+function MS_ReadingTask_Preprocessing
     % Preprocessing implementation for SPM12
     % Author: Valerie Chanoine, Research Engineer at ILCB and 
     % BLRI (http://www.blri.fr/)
