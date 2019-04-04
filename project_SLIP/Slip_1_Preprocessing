@@ -15,10 +15,12 @@ function Slip_1_Preprocessing
     %%========= Define parametres in a general struture 'w' ===============
     w.rawDir            = 'H:\fMRI\SLIP\RawData';       % input path 
     w.dataDir           = 'H:\fMRI\SLIP\Data\PREPROC';  % output path          
-    w.subjDir           = {'sub-01','sub-02', 'sub-03', 'sub-04', 'sub-05','sub-06', 'sub-07','sub-08', ...
-                             'sub-09','sub-10', 'sub-11', 'sub-12', 'sub-13','sub-14', 'sub-15', 'sub-16',...
-                             'sub-17', 'sub-18', 'sub-19','sub-20','sub-21','sub-22','sub-23',...
-                             'sub-24', 'sub-25', 'sub-26', 'sub-27','sub-28'}; % list of subjects
+    w.subjDir           = {'sub-01','sub-02', 'sub-03', 'sub-04', 'sub-05',...
+                            'sub-06', 'sub-07','sub-08', 'sub-09','sub-10',...
+                            'sub-11', 'sub-12', 'sub-13','sub-14', 'sub-15', ...
+                            'sub-16', 'sub-17', 'sub-18', 'sub-19','sub-20',...
+                            'sub-21','sub-22','sub-23','sub-24', 'sub-25',...
+                            'sub-26', 'sub-27','sub-28'}; % list of subjects
                    
     w.anatDir          	= 'anat';            % anatomical directory (parent=subjDir) 
     w.funcDir           = 'func';            % functional directory (parent=subjDir)
@@ -42,8 +44,8 @@ function Slip_1_Preprocessing
         fprintf([w.subjDir{iS} ' Prepare Files...\n']);  
          
         %% Unzip and copy anatomical and functional files (BIDS format)     
-         DoGunzip(w);
-         DoCopyFiles(w);
+%          DoGunzip(w);
+%          DoCopyFiles(w);
         
         %% Load (anatomical and functional) json files
         json  = InitJasonParam(w);
@@ -52,7 +54,6 @@ function Slip_1_Preprocessing
         w.TR                = json.RepetitionTime;  % Repetition time (s)
         w.EchoTime          = json.EchoTime*1000;    
         w.ReadoutTime       = json.TotalReadoutTime*1000;                 
-        % w.nSlices           = 54;     % Number of slices NOT USED
         w.blip = 1;
         if (strfind(json.PhaseEncodingDirection, 'j-'))
             w.blip = -1;
@@ -75,9 +76,21 @@ function Slip_1_Preprocessing
         DoNormalise(w);
         DoSmooth(w);
         DoExplicitMask(w);
+        DoART_Outliers_regression(w)
+
 
     end    
 end
+
+function DoART_Outliers_regression(w)
+  normEPI = {};
+    for j=1:numel(w.sessions) 
+        % Get EPI Normalised files (4D file) per session
+        normEPI {j} = spm_select('FPList',  w.funcPath, ['^wu' w.subName '.*' w.sessions{j} '.*\.nii$']);             
+    end
+    CREx_fMRI_art_batch(normEPI, w.subName, w.subPath);
+end
+
 
 function DoGunzip(w) 
     %% Unzip anatomical and functional files
