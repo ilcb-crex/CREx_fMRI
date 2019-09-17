@@ -2,8 +2,9 @@ function Slip_1_Preprocessing
     % Preprocessing implementation for SPM12
     % Author: Valérie Chanoine, Research Engineer at ILCB (http://www.ilcb.fr/)and BLRI (http://www.blri.fr/)
     % Contact: Valerie.Chanoine@blri.fr
-    % Co-authors from fMRI platform: Jean-Luc Anton, Julien Sein, Bruno Nazarian and Pascal Belin from fMRI
-    % platform (MRI Center @ CERIMED, Institut de Neurosciences de la Timone, Marseille, France)
+    % Co-authors from fMRI platform: Jean-Luc Anton, Julien Sein and Bruno Nazarian from fMRI
+    % platform (Centre IRM-INT@CERIMED, Institut de Neurosciences de la Timone, Marseille, France)
+    % http://irmf.int.univ-amu.fr/
     % Date: Mars 10, 2018
     
     clear all;
