@@ -73,7 +73,7 @@ function AVA_1_Preprocessing
         DoNormalise(w);
         DoSmooth(w);
         DoExplicitMask(w);
-        DoART_Outliers_regression(w)
+        %DoART_Outliers_regression(w)
 
 
     end    
