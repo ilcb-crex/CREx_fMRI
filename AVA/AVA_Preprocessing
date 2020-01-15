@@ -1,4 +1,4 @@
-function AVA_1_Preprocessing
+function AVA_Preprocessing
     % Preprocessing implementation for SPM12
     % Author: Valérie Chanoine, Research Engineer at ILCB (http://www.ilcb.fr/)and BLRI (http://www.blri.fr/)
     % Contact: Valerie.Chanoine@univ-amu.fr
