@@ -1,4 +1,4 @@
-function AVA_Preprocessing
+function AVA_1_Preprocessing
     % Preprocessing implementation for SPM12
     % Author: Valérie Chanoine, Research Engineer at ILCB (http://www.ilcb.fr/)and BLRI (http://www.blri.fr/)
     % Contact: Valerie.Chanoine@univ-amu.fr
@@ -22,7 +22,8 @@ function AVA_Preprocessing
     w.funcDir           = 'func';            % functional directory (parent=subjDir)
     w.fmapDir           = 'fmap';            % fieldmap directory  (parent=subjDir)
     w.sessions          = {'run-01'}; 
-    w.task              = 'task-LocaAudio2p5';  
+    %w.task              = 'task-LocaAudio2p5';  
+    w.task              = 'task-LocaVis2p5'; 
     w.fielmapSpec       = '2p5mm';
 
     %%===================================================================== 
@@ -66,14 +67,15 @@ function AVA_Preprocessing
         
         cd(w.subPath);
          
-        %DoFieldMap(w);     
+        DoFieldMap(w);     
         DoRealignUnwarp(w);
+        DoART_Outliers_regression(w) 
         DoCoregister(w);
         DoSegment(w);
         DoNormalise(w);
         DoSmooth(w);
         DoExplicitMask(w);
-        %DoART_Outliers_regression(w)
+    
 
 
     end    
@@ -83,9 +85,9 @@ function DoART_Outliers_regression(w)
   normEPI = {};
     for j=1:numel(w.sessions) 
         % Get EPI Normalised files (4D file) per session
-        normEPI {j} = spm_select('FPList',  w.funcPath, ['^wu' w.subName '.*' w.sessions{j} '.*\.nii$']);             
+        EPI {j} = spm_select('FPList',  w.funcPath, ['^u' w.subName  '_' w.task  '_' w.sessions{j} '_bold\.nii$']);           
     end
-    CREx_fMRI_art_batch(normEPI, w.subName, w.subPath);
+    CREx_fMRI_art_batch(EPI, w.subName, w.subPath);
 end
 
 
@@ -420,5 +422,103 @@ function DoExplicitMask(w)
     save(fullfile(w.subPath, 'SPM12_matlabbatch_7_Mask.mat'),'matlabbatch'); 
 
     spm_jobman('run',matlabbatch);     
+end
+
+
+function CREx_fMRI_art_batch(EPI, subName, outputDir)
+  
+    %%================ Default ART parametres =============================
+
+    ART.global_mean=1;                % global mean type (1: Standard 2: User-defined Mask)
+    ART.motion_file_type=0;           % motion file type (0: SPM .txt file 1: FSL .par file 2:Siemens .txt file)
+    ART.global_threshold=5;         % threshold for outlier detection based on global signal
+    ART.motion_threshold=.9;           % threshold for outlier detection based on motion estimates
+    ART.use_diff_motion=1;            % 1: uses scan-to-scan motion to determine outliers; 0: uses absolute motion
+    ART.use_diff_global=1;            % 1: uses scan-to-scan global signal change to determine outliers; 0: uses absolute global signal values
+    ART.use_norms=1;                  % 1: uses composite motion measure (largest voxel movement) to determine outliers; 0: uses raw motion measures (translation/rotation parameters) 
+    ART.mask_file=[];                 % set to user-defined mask file(s) for global signal estimation (if ART.global_mean is set to 2) 
+
+    % % % Options from CONN
+    % % % (functional_art) ART thresholds for identifying outlier scans 
+    % % % art_thresholds(1): threshold value for global-signal (z-value; default 5) 
+    % % % art_thresholds(2): threshold value for subject-motion (mm; default .9) 
+    % % % additional options: art_thresholds(3): 1/0 global-signal threshold based on scan-to-scan changes
+    % % % in global-BOLD measure (default 1) 
+    % % % art_thresholds(4): 1/0 subject-motion threshold based on scan-to-scan changes 
+    % % % in subject-motion measure (default 1) 
+    % % % art_thresholds(5): 1/0 subject-motion threhsold based on composite-movement 
+    % % % measure (default 1) 
+    % % % art_thresholds(6): 1/0 force interactive mode (ART gui) (default 0) 
+    % % % art_thresholds(7): [only when art_threshold(5)=0] subject-motion threshold 
+    % % % based on rotation measure 
+    % % % art_thresholds(8): N number of initial scans to be flagged for removal 
+    % % % (default 0)
+    % % % note: when art_threshold(5)=0, art_threshold(2) defines the threshold based on the translation 
+    % % % measure, and art_threhsold(7) defines the threshold based on the rotation measure; otherwise 
+    % % % art_threshold(2) defines the (single) threshold based on the composite-motion measure 
+    % % % note: the default art_thresholds(1:2) [5 .9] values correspond to the "intermediate" 
+    % % % (97th percentile) settings; to use the "conservative" (95th percentile) settings use 
+    % % % [3 .5]; to use the "liberal" (99th percentile) settings use [9 2] values instead
+    % % % note: art needs subject-motion files to estimate possible outliers. If a 'realignment' 
+    % % % first-level covariate exists it will load the subject-motion parameters from that first-
+    % % % level covariate; otherwise it will look for a rp_*.txt file (SPM format) in the same 
+    % % % folder as the functional data
+    % % % note: subject-motion files can be in any of the following formats: a) *.txt file (SPM 
+    % % % format; three translation parameters in mm followed by pitch/roll/yaw in radians); 
+    % % % b) *.par (FSL format; three Euler angles in radians followed by translation parameters 
+    % % % in mm); c) *.siemens.txt (Siemens MotionDetectionParameter.txt format); d) *.deg.txt (same 
+    % % % as SPM format but rotations in degrees instead of radians)   
+
+       
+    %%================== Create a config file =============================
+    % Get the number of sessions
+    nSessions = numel(EPI);
+    
+    % Define the config file
+    cfgfile = fullfile(outputDir, [subName '_art_config2020.cfg']);
+        
+	% Open it and write ART comments and parameters 
+    fid=fopen(cfgfile,'wt');
+     
+    % Comments
+    fprintf(fid,'# Automatic script generated by %s\n',mfilename);
+    fprintf(fid,'# Users can edit this file and use\n');
+    fprintf(fid,'#   art(''sess_file'',''%s'');\n',cfgfile);
+    fprintf(fid,'# to launch art using this configuration\n');
+        
+    % Parameters 
+    fprintf(fid,'sessions: %d\n', nSessions);
+    fprintf(fid,'global_mean: %d\n', ART.global_mean);
+    fprintf(fid,'global_threshold: %f\n', ART.global_threshold);
+    fprintf(fid,'motion_threshold: %f\n', ART.motion_threshold);
+    fprintf(fid,'motion_file_type: %d\n', ART.motion_file_type);
+    fprintf(fid,'motion_fname_from_image_fname: 1\n');
+    fprintf(fid,'use_diff_motion: %d\n', ART.use_diff_motion);
+    fprintf(fid,'use_diff_global: %d\n', ART.use_diff_global);
+    fprintf(fid,'use_norms: %d\n', ART.use_norms);
+    fprintf(fid,'output_dir: %s\n', outputDir);        
+    if ~isempty(ART.mask_file),fprintf(fid,'mask_file: %s\n',deblank(ART.mask_file(1,:)));end
+    fprintf(fid,'end\n');
+        
+    for iSess=1:nSessions,
+        fprintf(fid,'session %d image %s\n',iSess, EPI{iSess});
+    end
+    fprintf(fid,'end\n');
+    
+    % Close config file
+    fclose(fid);
+
+    %%================== Use ART function  ================================
+    % Use ART function to get 'regression' outliers   
+    disp(['running subject using config file ',cfgfile]);
+    art('sess_file',cfgfile);
+    
+    % Define a name for the figure
+    set(gcf,'name',['subject #',subName]);
+    
+    %% Save the figure in 2 formats
+    saveas(gcf, fullfile(outputDir, [subName '_art_config']), 'png');
+    close
+    %%
 end
 
