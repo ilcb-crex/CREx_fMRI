@@ -17,8 +17,8 @@ function CREx_fMRI_art_batch(normEPI, subName, outputDir)
 
     ART.global_mean=1;                % global mean type (1: Standard 2: User-defined Mask)
     ART.motion_file_type=0;           % motion file type (0: SPM .txt file 1: FSL .par file 2:Siemens .txt file)
-    ART.global_threshold=9.0;         % threshold for outlier detection based on global signal
-    ART.motion_threshold=2.0;         % threshold for outlier detection based on motion estimates
+    ART.global_threshold=5;         % threshold for outlier detection based on global signal
+    ART.motion_threshold=.9;         % threshold for outlier detection based on motion estimates
     ART.use_diff_motion=1;            % 1: uses scan-to-scan motion to determine outliers; 0: uses absolute motion
     ART.use_diff_global=1;            % 1: uses scan-to-scan global signal change to determine outliers; 0: uses absolute global signal values
     ART.use_norms=1;                  % 1: uses composite motion measure (largest voxel movement) to determine outliers; 0: uses raw motion measures (translation/rotation parameters) 
