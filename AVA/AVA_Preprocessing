@@ -403,17 +403,13 @@ end
 
 function DoExplicitMask(w)
 
-    %% Get normalized tissus (grey and white matter, CSF)
-    wc1 = spm_select('FPList', w.anatPath, ['^wc1' w.subName '.*T1w\.nii$']);  
-    wc2 = spm_select('FPList', w.anatPath, ['^wc2' w.subName '.*T1w\.nii$']);  
-    wc3 = spm_select('FPList', w.anatPath, ['^wc3' w.subName '.*T1w\.nii$']);   
-
-    P = [wc1; wc2; wc3];  
-    
+    %% Get normalized grey matter tissus
+    P = spm_select('FPList', w.anatPath, ['^wc1' w.subName '.*T1w\.nii$']);  
+     
     matlabbatch{1}.spm.util.imcalc.input = cellstr(P);
-    matlabbatch{1}.spm.util.imcalc.output = fullfile(w.anatPath, 'explicitMask_wc1wc2wc3_03.nii');
+    matlabbatch{1}.spm.util.imcalc.output = fullfile(w.anatPath, 'explicitMask_wc1_03.nii');
     matlabbatch{1}.spm.util.imcalc.outdir = {''};
-    matlabbatch{1}.spm.util.imcalc.expression = '(i1+i2+i3)>0.3';
+    matlabbatch{1}.spm.util.imcalc.expression = 'i1>0.3';
     matlabbatch{1}.spm.util.imcalc.options.dmtx = 0;
     matlabbatch{1}.spm.util.imcalc.options.mask = 0;
     matlabbatch{1}.spm.util.imcalc.options.interp = 1;
