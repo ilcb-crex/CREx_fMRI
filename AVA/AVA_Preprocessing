@@ -1,6 +1,6 @@
 function AVA_1_Preprocessing
     % Preprocessing implementation for SPM12
-    % Author: Valérie Chanoine, Research Engineer at ILCB (http://www.ilcb.fr/)and BLRI (http://www.blri.fr/)
+    % Author: Valérie Chanoine, Research Engineer at ILCB (http://www.ilcb.fr/)
     % Contact: Valerie.Chanoine@univ-amu.fr
     % Co-authors from fMRI platform: Jean-Luc Anton, Julien Sein and Bruno Nazarian from fMRI
     % platform (Centre IRM-INT@CERIMED, Institut de Neurosciences de la Timone, Marseille, France)
